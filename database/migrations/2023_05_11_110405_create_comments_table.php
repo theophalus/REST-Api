@@ -15,7 +15,7 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id();
             $table->text('body');
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
+            $table->foreignId('post_id')->references('id')->on('posts')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

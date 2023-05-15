@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SetupCommand extends Command
 {
@@ -50,17 +50,17 @@ class SetupCommand extends Command
         $this->call('migrate:fresh');
 
         // secondly create demo data
-        $users = $this->factory(User::class, 10)->create();
-
+        //$users = $this->factory(User::class, 10)->create();
+        $users = User::factory(10)->create();
         // Create and save demo categories
-        $categories = factory(Category::class, 5)->create();
-
+        //$categories = factory(Category::class, 5)->create();
+        $categories = Category::factory(5)->create();
         // For each category, create and save demo posts with comments
         foreach ($categories as $category) {
-            $posts = factory(Post::class, 3)->create(['category_id' => $category->id]);
+            $posts = Post::factory(3)->create(['category_id' => $category->id]);
 
             foreach ($posts as $post) {
-                factory(Comment::class, 2)->create(['post_id' => $post->id, 'user_id' => $users->random()->id]);
+                Post::factory(2)->create(['post_id' => $post->id, 'user_id' => $users->random()->id]);
             }
         }
 
