@@ -9,12 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+
+    public function up()
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
+            $table->string('title');
             $table->text('body');
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('posts');
     }
 };
