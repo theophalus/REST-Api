@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->string('name');
-            $table->id();
+            $table->bigIncrements('id');
             $table->timestamps();
         });
     }

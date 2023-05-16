@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+
 class SetupCommand extends Command
 {
     /**
@@ -46,30 +47,36 @@ class SetupCommand extends Command
      */
     public function handle()
     {
-        // Firstly run migrations
+        // Firstly check if laravel app key is there, if not generate a new one
+        if (!config('app.key')) {
+            $this->call('key:generate');
+            $this->info('Laravel App key generated successfully!');
+        }
+
+
+        // Secondly run migrations
         $this->call('migrate:fresh');
 
-        // secondly create demo data
-        //$users = $this->factory(User::class, 10)->create();
+        // Thirdly create demo data
         $users = User::factory(10)->create();
+
         // Create and save demo categories
-        //$categories = factory(Category::class, 5)->create();
         $categories = Category::factory(5)->create();
-        // For each category, create and save demo posts with comments
+
         foreach ($categories as $category) {
             $posts = Post::factory(3)->create(['category_id' => $category->id]);
-
-            foreach ($posts as $post) {
-                Post::factory(2)->create(['post_id' => $post->id, 'user_id' => $users->random()->id]);
-            }
         }
+
+        // create comments
+        $comments = Comment::factory(15)->create();
 
         $this->info('Demo data populated successfully!');
 
+
        // Then create a demo user
-        $name = $this->ask('What is the user name?');
-        $email = $this->ask('What is the user email?');
-        $password = $this->secret('What is the user password?');
+        $name = $this->ask('Enter a user name?');
+        $email = $this->ask('Enter the user email?');
+        $password = $this->secret('Enter the user password?');
 
         $user = \App\Models\User::factory()->create([
             'name' => $name,
@@ -77,7 +84,7 @@ class SetupCommand extends Command
             'password' => bcrypt($password),
         ]);
 
-        // Create the API token
+        // Create a sanctum API token
         $token = $user->createToken('Demo Token')->plainTextToken;
 
         // display created info to the user

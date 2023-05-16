@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('title');
             $table->text('body');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
