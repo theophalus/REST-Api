@@ -2,38 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Transformers\UserTransformer;
 use Illuminate\Http\Request;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
+use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $users = User::all();
-        $usersCollection = new Collection($users, new UserTransformer());
-        $data = fractal($usersCollection)->toArray();
-        return response()->json($data);
+
+        return response()->json([
+            'data' => $users
+        ]);
     }
 
-    public function show($id)
-    {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        $userItem = new Item($user, new UserTransformer());
-        $data = fractal($userItem)->toArray();
-        return response()->json($data);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
-            'email' => 'required|unique:users|email',
+            'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
         ]);
 
@@ -43,24 +41,43 @@ class UserController extends Controller
             'password' => bcrypt($request->input('password')),
         ]);
 
-        $userItem = new Item($user, new UserTransformer());
-        $data = fractal($userItem)->toArray();
-        return response()->json($data, 201);
+        return response()->json([
+            'message' => 'User created successfully',
+            'data' => $user
+        ], 201);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $user = User::findOrFail($id);
+
+        return response()->json([
+            'data' => $user
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
-            'email' => 'required|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'sometimes|min:6',
         ]);
 
+        $user = User::findOrFail($id);
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         if ($request->has('password')) {
@@ -68,19 +85,25 @@ class UserController extends Controller
         }
         $user->save();
 
-        $userItem = new Item($user, new UserTransformer());
-        $data = fractal($userItem)->toArray();
-        return response()->json($data);
+        return response()->json([
+            'message' => 'User updated successfully',
+            'data' => $user
+        ]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
+        $user = User::findOrFail($id);
         $user->delete();
-        return response()->json(['message' => 'User deleted']);
+
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ]);
     }
 }

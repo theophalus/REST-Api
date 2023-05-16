@@ -2,79 +2,102 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
-use App\Transformers\PostTransformer;
 use Illuminate\Http\Request;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
+use App\Models\Post;
 
 class PostController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $posts = Post::all();
-        $postsCollection = new Collection($posts, new PostTransformer());
-        $data = fractal($postsCollection)->toArray();
-        return response()->json($data);
+
+        return response()->json([
+            'data' => $posts
+        ]);
     }
 
-    public function show($id)
-    {
-        $post = Post::find($id);
-        if (!$post) {
-            return response()->json(['error' => 'Post not found'], 404);
-        }
-        $postItem = new Item($post, new PostTransformer());
-        $data = fractal($postItem)->toArray();
-        return response()->json($data);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        $request->validate([
             'title' => 'required',
             'body' => 'required',
+            'category_id' => 'required',
+            'user_id' => 'required',
         ]);
 
-        $post = Post::create([
-            'title' => $request->input('title'),
-            'body' => $request->input('body'),
-        ]);
+        $post = Post::create($request->all());
 
-        $postItem = new Item($post, new PostTransformer());
-        $data = fractal($postItem)->toArray();
-        return response()->json($data, 201);
+        return response()->json([
+            'message' => 'Post created successfully',
+            'data' => $post
+        ], 201);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $post = Post::findOrFail($id);
+
+        return response()->json([
+            'data' => $post
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
-        $post = Post::find($id);
-        if (!$post) {
-            return response()->json(['error' => 'Post not found'], 404);
-        }
-
-        $this->validate($request, [
+        $request->validate([
             'title' => 'required',
             'body' => 'required',
+            'category_id' => 'required',
+            'user_id' => 'required',
         ]);
 
-        $post->title = $request->input('title');
-        $post->body = $request->input('body');
-        $post->save();
+        $post = Post::findOrFail($id);
+        $post->update($request->all());
 
-        $postItem = new Item($post, new PostTransformer());
-        $data = fractal($postItem)->toArray();
-        return response()->json($data);
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'data' => $post
+        ]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $post = Post::find($id);
-        if (!$post) {
-            return response()->json(['error' => 'Post not found'], 404);
-        }
-
+        $post = Post::findOrFail($id);
         $post->delete();
-        return response()->json(['message' => 'Post deleted']);
+
+        return response()->json([
+            'message' => 'Post deleted successfully'
+        ]);
     }
 }
+

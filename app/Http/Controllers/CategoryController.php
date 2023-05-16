@@ -2,75 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Transformers\CategoryTransformer;
 use Illuminate\Http\Request;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $categories = Category::all();
-        $categoriesCollection = new Collection($categories, new CategoryTransformer());
-        $data = fractal($categoriesCollection)->toArray();
-        return response()->json($data);
+
+        return response()->json([
+            'data' => $categories
+        ]);
     }
 
-    public function show($id)
-    {
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
-        }
-        $categoryItem = new Item($category, new CategoryTransformer());
-        $data = fractal($categoryItem)->toArray();
-        return response()->json($data);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|unique:categories',
+        $request->validate([
+            'name' => 'required',
         ]);
 
-        $category = Category::create([
-            'name' => $request->input('name'),
-        ]);
+        $category = Category::create($request->all());
 
-        $categoryItem = new Item($category, new CategoryTransformer());
-        $data = fractal($categoryItem)->toArray();
-        return response()->json($data, 201);
+        return response()->json([
+            'message' => 'Category created successfully',
+            'data' => $category
+        ], 201);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $category = Category::findOrFail($id);
+
+        return response()->json([
+            'data' => $category
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
-        }
-
-        $this->validate($request, [
-            'name' => 'required|unique:categories,name,' . $id,
+        $request->validate([
+            'name' => 'required',
         ]);
 
-        $category->name = $request->input('name');
-        $category->save();
+        $category = Category::findOrFail($id);
+        $category->update($request->all());
 
-        $categoryItem = new Item($category, new CategoryTransformer());
-        $data = fractal($categoryItem)->toArray();
-        return response()->json($data);
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'data' => $category
+        ]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
-        }
-
+        $category = Category::findOrFail($id);
         $category->delete();
-        return response()->json(['message' => 'Category deleted']);
+
+        return response()->json([
+            'message' => 'Category deleted successfully'
+        ]);
     }
 }

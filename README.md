@@ -20,4 +20,29 @@ To set up the project you need docker to be installed and running on your system
 5) You can now connect using postman to test the API. 
 
 
+## Endpoints
+
+- GET /user: Retrieves the authenticated user.
+- GET /posts: Retrieves all posts.
+- GET /posts/{id}: Retrieves a specific post.
+- POST /posts: Creates a new post.
+- PUT /posts/{id}: Updates a specific post.
+- DELETE /posts/{id}: Deletes a specific post.
+- GET /comments: Retrieves all comments.
+- GET /comments/{id}: Retrieves a specific comment.
+- POST /comments: Creates a new comment.
+- PUT /comments/{id}: Updates a specific comment.
+- DELETE /comments/{id}: Deletes a specific comment.
+- GET /categories: Retrieves all categories.
+- GET /categories/{id}: Retrieves a specific category.
+- POST /categories: Creates a new category.
+- PUT /categories/{id}: Updates a specific category.
+- DELETE /categories/{id}: Deletes a specific category.
+- POST /register: Registers a new user.
+- POST /login: Logs in a user.
+
+
+## Aditional Information
+
+1) Request and response made to the API will be logged using the Laravel logging system. You can check the logs in the storage/logs directory.
 

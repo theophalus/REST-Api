@@ -1,79 +1,100 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Comment;
-use App\Transformers\CommentTransformer;
+
 use Illuminate\Http\Request;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
+use App\Models\Comment;
 
 class CommentController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $comments = Comment::all();
-        $commentsCollection = new Collection($comments, new CommentTransformer());
-        $data = fractal($commentsCollection)->toArray();
-        return response()->json($data);
+
+        return response()->json([
+            'data' => $comments
+        ]);
     }
 
-    public function show($id)
-    {
-        $comment = Comment::find($id);
-        if (!$comment) {
-            return response()->json(['error' => 'Comment not found'], 404);
-        }
-        $commentItem = new Item($comment, new CommentTransformer());
-        $data = fractal($commentItem)->toArray();
-        return response()->json($data);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'body' => 'required',
-            'post_id' => 'required|exists:posts,id',
+        $request->validate([
+            'post_id' => 'required',
+            'user_id' => 'required',
+            'content' => 'required',
         ]);
 
-        $comment = Comment::create([
-            'body' => $request->input('body'),
-            'post_id' => $request->input('post_id'),
-        ]);
+        $comment = Comment::create($request->all());
 
-        $commentItem = new Item($comment, new CommentTransformer());
-        $data = fractal($commentItem)->toArray();
-        return response()->json($data, 201);
+        return response()->json([
+            'message' => 'Comment created successfully',
+            'data' => $comment
+        ], 201);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        return response()->json([
+            'data' => $comment
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
-        $comment = Comment::find($id);
-        if (!$comment) {
-            return response()->json(['error' => 'Comment not found'], 404);
-        }
-
-        $this->validate($request, [
-            'body' => 'required',
-            'post_id' => 'required|exists:posts,id',
+        $request->validate([
+            'post_id' => 'required',
+            'user_id' => 'required',
+            'content' => 'required',
         ]);
 
-        $comment->body = $request->input('body');
-        $comment->post_id = $request->input('post_id');
-        $comment->save();
+        $comment = Comment::findOrFail($id);
+        $comment->update($request->all());
 
-        $commentItem = new Item($comment, new CommentTransformer());
-        $data = fractal($commentItem)->toArray();
-        return response()->json($data);
+        return response()->json([
+            'message' => 'Comment updated successfully',
+            'data' => $comment
+        ]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $comment = Comment::find($id);
-        if (!$comment) {
-            return response()->json(['error' => 'Comment not found'], 404);
-        }
-
+        $comment = Comment::findOrFail($id);
         $comment->delete();
-        return response()->json(['message' => 'Comment deleted']);
+
+        return response()->json([
+            'message' => 'Comment deleted successfully'
+        ]);
     }
 }
