@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     // Protected routes that require authentication
 
-    // Example route for retrieving authenticated user
+    // Route for retrieving authenticated user
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -35,13 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
 
-
-// Public routes that don't require authentication
-Route::post('/register', 'App\Http\Controllers\Auth\RegisterController@register');
-
-// Example route for logging in
-Route::post('/login', 'App\Http\Controllers\Auth\LoginController@login');
+// Route for logging in second option if the user doesn't have a API token
+Route::post('/login', 'App\Http\Controllers\AuthController@login')->name('login');

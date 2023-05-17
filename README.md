@@ -17,7 +17,7 @@ To set up the project you need docker to be installed and running on your system
 - Create sample data, i.e post, post categories and demo users 
 - Create a demo user 
 - Generate a sanctum API token. 
-5) You can now connect using postman to test the API. 
+5) You can now connect using postman to test the API. URL 127.0.0.1/api/ and Bearer Token that was generated during setup. 
 
 
 ## Endpoints
@@ -38,11 +38,11 @@ To set up the project you need docker to be installed and running on your system
 - POST /categories: Creates a new category.
 - PUT /categories/{id}: Updates a specific category.
 - DELETE /categories/{id}: Deletes a specific category.
-- POST /register: Registers a new user.
-- POST /login: Logs in a user.
+- POST /login: Logs in a user using credentials that you entered.
 
 
 ## Aditional Information
 
 1) Request and response made to the API will be logged using the Laravel logging system. You can check the logs in the storage/logs directory.
+2) To run a test run the following command ./vendor/bin/sail artisan test
 
